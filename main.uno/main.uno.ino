@@ -1,11 +1,5 @@
 #include <SPI.h>
-#define PIN_PHOTO_SENSOR A0
-#define PIN_PIEZO 12
-#define PIN_DIOD 8
-#define HIGH_TONE 1000
-#define LOW_TONE 500
-#define TACT_COUNT 5
-#define DELAY_PIEZO 500
+#include "macros.h"
 bool light = 1;
 
 void setup() {
@@ -14,7 +8,7 @@ void setup() {
   Serial.print("Hello\n");
 }
 
-void light_low(){
+void light_low() {
   for (int i = 0; i < TACT_COUNT; ++i) {
     tone(PIN_PIEZO, HIGH_TONE, DELAY_PIEZO);
     delay(DELAY_PIEZO);
