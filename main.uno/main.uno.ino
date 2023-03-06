@@ -11,8 +11,10 @@ void setup() {
 void light_low() {
   for (int i = 0; i < TACT_COUNT; ++i) {
     tone(PIN_PIEZO, HIGH_TONE, DELAY_PIEZO);
+    digitalWrite(PIN_DIOD, 1);
     delay(DELAY_PIEZO);
     tone(PIN_PIEZO, LOW_TONE, DELAY_PIEZO);
+    digitalWrite(PIN_DIOD, 0);
     delay(DELAY_PIEZO);
   }
   light = 1;
@@ -21,10 +23,10 @@ void light_low() {
 void loop() {
   int photo_sensor_value = analogRead(PIN_PHOTO_SENSOR);
   if (photo_sensor_value >= 1000) {
-    digitalWrite(PIN_DIOD, 1);
     if (!light) {
       light_low();
     }
+    digitalWrite(PIN_DIOD, 1);
   } else {
     digitalWrite(PIN_DIOD, 0);
     noTone(PIN_PIEZO);
