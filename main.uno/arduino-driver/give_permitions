@@ -1,7 +1,0 @@
-#!/bin/bash
-
-ls -l /dev/ttyACM*;
-
-sudo chmod a+rw /dev/ttyACM0
-
-ls -l /dev/ttyACM*
