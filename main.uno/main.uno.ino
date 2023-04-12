@@ -1,4 +1,3 @@
-#include <SPI.h>
 #include "macros.h"
 bool light = 1;
 

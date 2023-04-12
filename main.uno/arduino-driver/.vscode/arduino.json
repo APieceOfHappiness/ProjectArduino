@@ -1,0 +1,6 @@
+{
+    "board": "arduino:avr:uno",
+    "programmer": "avrispmkii",
+    "port": "/dev/ttyACM0",
+    "sketch": "arduino-driver.ino"
+}

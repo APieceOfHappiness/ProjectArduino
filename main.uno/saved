@@ -1,0 +1,47 @@
+import serial
+# import dash
+# from dash.dependencies import Output, Input
+# import dash_core_components as dcc
+# import dash_html_components as html
+# import plotly.graph_objects as go
+# import plotly.express as px
+# s = serial.Serial('/dev/ttyACM0', 9600)
+
+# app = dash.Dash(__name__)
+
+# app.layout = html.Div([    
+#         dcc.Graph(id = 'live-graph',
+#                   animate = True),
+#         dcc.Interval(
+#             id = 'graph-update',
+#             interval = 1000,
+#             n_intervals = 0
+#         ),
+#     ]
+# )
+
+# UPDATE_SPEED = 100
+# PERIOD = 20
+# X = [x for x in range(PERIOD * UPDATE_SPEED)]
+
+# def add_values(data: list):
+#     data.append(int(str(s.readline())[2:-5]))
+
+
+
+# @app.callback(
+#     Output('live-graph', 'figure'),
+#     [ Input('graph-update', 'n_intervals') ]
+# )
+
+
+
+# def updating_data(n_intervals):
+#     # print(n_intervals)
+#     # add_values
+#     X[0]=n_intervals
+#     return { "data": [go.Scatter(x=X, y=)] }
+
+
+# if __name__ == '__main__':
+#     app.run_server(debug=True)
