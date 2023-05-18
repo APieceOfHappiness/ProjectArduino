@@ -1,7 +1,9 @@
+#include <stdlib.h>
+#include <unistd.h>
+
 #define PIN_PHOTO_SENSOR A0
 
 #define PIN_LED 13
-
 
 void setup() {
   Serial.begin(9600);
