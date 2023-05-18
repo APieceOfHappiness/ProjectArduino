@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     while True:
         lock_f = open(lock_file, 'r')
-        if lock_f.read() == '\0':
+        if lock_f.read() == 'r':
             data_f = open(data_file, 'r')
             x_axis_data.append(len(x_axis_data))
             value_data = float(data_f.read())
@@ -40,8 +40,9 @@ if __name__ == "__main__":
             data_f.close()
 
             lock_fw = open(lock_file, 'w')
-            lock_fw.write('\n')
+            lock_fw.write('w')
             lock_fw.close()
-        elif lock_f.read() == '\t':
+        elif lock_f.read() == 't':
             break
         lock_f.close()
+    
