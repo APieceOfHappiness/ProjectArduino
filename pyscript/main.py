@@ -6,6 +6,10 @@ import struct
 
 
 def update_canvas(x_axis_data, y_axis_data, fig, ax, y_lim, y_low_lim):
+    ax[0, 0].set_title('Preasure')
+    ax[0, 1].set_title('Temp')
+    ax[1, 0].set_title('Sound')
+    ax[1, 1].set_title('Light')
     for i in range(2):
         for j in range(2):
             ax[i, j].clear()
