@@ -12,7 +12,7 @@ def update_canvas(x_axis_data, y_axis_data, fig, ax, y_lim, y_low_lim):
             ax[i, j].plot(x_axis_data[i * 2 + j], y_axis_data[i * 2 + j])
             u_lim = max(y_axis_data[i * 2 + j]) + 1
             d_lim = min(y_axis_data[i * 2 + j]) - 1
-            ax[i, j].set(xlim=(x_axis_data[i * 2 + j][0], len(x_axis_data[i * 2 + j])), ylim=(d_lim, u_lim))
+            ax[i, j].set(xlim=(x_axis_data[i * 2 + j][0], x_axis_data[i * 2 + j][-1]), ylim=(d_lim, u_lim))
     plt.draw()
     plt.pause(0.01)
 
