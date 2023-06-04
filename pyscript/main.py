@@ -31,9 +31,9 @@ if __name__ == "__main__":
         for i in range(4):
             current = struct.unpack('d', pipe.read(8))[0]
             if len(x_axis_data[i]) == 0:
-                x_axis_data[i] = [0]
+                x_axis_data[i].append(0)
             else:
-                x_axis_data[i].append(x_axis_data[-1] + 1)
+                x_axis_data[i].append(x_axis_data[i][-1] + 1)
             max_data[i] = max(max_data[i], current)
             min_data[i] = max(min_data[i], current)
             y_axis_data[i].append(current)
