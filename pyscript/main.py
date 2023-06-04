@@ -18,11 +18,11 @@ def update_canvas(x_axis_data, y_axis_data, fig, ax, y_lim, y_low_lim):
 
 
 if __name__ == "__main__":
-    x_axis_data = [[0], [0], [0], [0]]
-    y_axis_data = [[0], [0], [0], [0]]
+    x_axis_data = [[], [], [], []]
+    y_axis_data = [[], [], [], []]
 
     fig, ax = plt.subplots(2, 2)
-    update_canvas(x_axis_data, y_axis_data, fig, ax, [1, 1, 1, 1], [0, 0, 0, 0])
+#    update_canvas(x_axis_data, y_axis_data, fig, ax, [1, 1, 1, 1], [0, 0, 0, 0])
     max_data = [0.0, 0.0, 0.0, 0.0]
     min_data = [0.0, 0.0, 0.0, 0.0]
 
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     while True:
         for i in range(4):
             current = struct.unpack('d', pipe.read(8))[0]
-            x_axis_data[i].append(len(x_axis_data[i]))
+            x_axis_data[i].append(x_axis_data[-1] + 1)
             max_data[i] = max(max_data[i], current)
             min_data[i] = max(min_data[i], current)
             y_axis_data[i].append(current)
