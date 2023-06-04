@@ -6,10 +6,6 @@ import struct
 
 
 def update_canvas(x_axis_data, y_axis_data, fig, ax, y_lim, y_low_lim):
-    ax[0, 0].set_title('Preasure')
-    ax[0, 1].set_title('Temp')
-    ax[1, 0].set_title('Sound')
-    ax[1, 1].set_title('Light')
     for i in range(2):
         for j in range(2):
             ax[i, j].clear()
@@ -17,6 +13,10 @@ def update_canvas(x_axis_data, y_axis_data, fig, ax, y_lim, y_low_lim):
             u_lim = max(y_axis_data[i * 2 + j]) + 1
             d_lim = min(y_axis_data[i * 2 + j]) - 1
             ax[i, j].set(xlim=(x_axis_data[i * 2 + j][0], x_axis_data[i * 2 + j][-1]), ylim=(d_lim, u_lim))
+    ax[0, 0].set_title('Preasure')
+    ax[0, 1].set_title('Temp')
+    ax[1, 0].set_title('Sound')
+    ax[1, 1].set_title('Light')
     plt.draw()
     plt.pause(0.01)
 
