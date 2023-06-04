@@ -31,6 +31,9 @@ if __name__ == "__main__":
             x_axis_data[i].append(len(x_axis_data[i]))
             max_data[i] = max(max_data[i], current)
             y_axis_data[i].append(current)
+            if len(x_axis_data[i]) > 50:
+                x_axis_data[i].pop(0)
+                y_axis_data[i].pop(0)
 
         update_canvas(x_axis_data, y_axis_data, fig, ax, max_data)
 
