@@ -5,11 +5,60 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
+#include <queue>
+#include <unistd.h>
 
-#define DURATION 1
+#define DURATION 100
 #define PRINTER_PATH "../pyscript/main.py"
 #define DATA_PATH "../pyscript/data.txt"
 #define LOCK_PATH "../pyscript/lock.txt"
+
+
+struct SensorData {
+    double preasure_val;
+    double temperature_val;
+    double sound_val;
+    double light_val;
+};
+
+void calc_mean(struct SensorData* mean, struct SensorData* sum, size_t cnt) {
+    mean->preasure_val = sum->preasure_val / cnt;
+    mean->temperature_val = sum->temperature_val / cnt;
+    mean->sound_val = sum->sound_val / cnt;
+    mean->light_val = sum->light_val / cnt;  
+}
+
+void write_sensor_data_to_pipe(int named_pipe, struct SensorData *sensor_data_mean) {
+    write(named_pipe, &sensor_data_mean->preasure_val, sizeof(sensor_data_mean->preasure_val));
+    write(named_pipe, &sensor_data_mean->temperature_val, sizeof(sensor_data_mean->temperature_val));
+    write(named_pipe, &sensor_data_mean->sound_val, sizeof(sensor_data_mean->sound_val));
+    write(named_pipe, &sensor_data_mean->light_val, sizeof(sensor_data_mean->light_val));
+}
+
+void sub_from_sum(struct SensorData *dest, struct SensorData *src) {
+    dest->light_val -= src->light_val;
+    dest->preasure_val -= src->preasure_val;
+    dest->sound_val -= src->sound_val;
+    dest->temperature_val -= src->temperature_val;
+}
+
+void add_to_sum(struct SensorData *dest, struct SensorData *src) {
+    dest->light_val += src->light_val;
+    dest->preasure_val += src->preasure_val;
+    dest->sound_val += src->sound_val;
+    dest->temperature_val += src->temperature_val;
+}
+
+void get_sensor_data(FILE *port, struct SensorData *sensor_data) {
+    if (fscanf(port, 
+           " %lf %lf %lf %lf ", 
+           &sensor_data->preasure_val,
+           &sensor_data->temperature_val,
+           &sensor_data->sound_val,
+           &sensor_data->light_val) != 4) {
+        perror("fscanf");
+    };
+}
 
 int open_port() {
   int fd; /* Файловый дескриптор для порта */
@@ -18,6 +67,7 @@ int open_port() {
   if (fd == -1)
   {
     perror("open_port: Unable to open /dev/ttyS0 - ");
+    _exit(-EXIT_FAILURE);
   }
   else
   {
@@ -29,8 +79,29 @@ int open_port() {
 }
 
 int main() {
-    
-    int python_printer = fork();
+    int num;
+    int64_t sum_values = 0;
+
+    sleep(2);  // Calibration
+    int port_fd = open_port(); // Open serial port
+    FILE* fport = fdopen(port_fd, "r");
+    if (!fport) {
+        perror("fdopen");
+        _exit(-EXIT_FAILURE);
+    }
+
+    std::queue<struct SensorData> ma_sensor_data; // MA - Moving Average
+    struct SensorData sensor_data_cur;
+    struct SensorData sensor_data_sum;
+    struct SensorData sensor_data_mean;
+
+    for (size_t i = 0; i < DURATION; ++i) { // Start initializing
+        get_sensor_data(fport, &sensor_data_cur);
+        add_to_sum(&sensor_data_sum, &sensor_data_cur);
+        ma_sensor_data.push(sensor_data_cur);
+    }
+
+    int python_printer = fork(); // Open UI with plots
     if (python_printer < 0) {
         _exit(-EXIT_FAILURE);
     } else if (python_printer == 0) {
@@ -39,56 +110,36 @@ int main() {
         return -EXIT_FAILURE;
     }
 
-    sleep(2);  // Calibration
-    int port_fd = open_port();
-    int num;
-    FILE* fport = fdopen(port_fd, "r");
-    int64_t sum_values = 0;
-    for (int i = 1;; i = (i + 1) % (DURATION + 1)) {
-        if (i == 0) {
-            FILE* flock = fopen(LOCK_PATH, "r");
-            if (!flock) {
-                perror("flock");
-                _exit(-EXIT_FAILURE);
-            }  
-
-            char flag;
-            int res = 0;
-            if ((res = fscanf(flock, "%c", &flag)) != 1) {
-                printf("fscanf %d\n", res);
-                sum_values = 0;
-                continue;
-                // _exit(-EXIT_FAILURE);
-            }
-            fclose(flock);
-
-            if (flag == 'r') {
-                sum_values = 0;
-                continue;
-            } else if (flag == 'w') {
-                FILE *fdata = fopen(DATA_PATH, "w");
-                printf("%ld\n", sum_values);
-                fprintf(fdata, "%ld\n", sum_values / (DURATION + 1));
-
-                flock = fopen(LOCK_PATH, "w");
-                if (!flock) {
-                    perror("flock");
-                    _exit(-EXIT_FAILURE);
-                }                
-                fprintf(flock, "r");
-                fclose(fdata);
-            }
-            fclose(flock);
-            sum_values = 0;
-        } else {
-            int res;
-            if ((res = fscanf(fport, "%d", &num)) <= 0) {
-                printf("WHAT??");
-            };
-            sum_values += num;
-            printf("num %d %d\n", num, res);
-        }
+    if (!mkfifo("/tmp/my_pipe", 0666)) {
+        perror("mkfifo");
+        _exit(-EXIT_FAILURE);
+    };
+    int named_pipe = open("/tmp/my_pipe", O_WRONLY);
+    if (!named_pipe) {
+        perror("fopen");
+        _exit(-EXIT_FAILURE);    
     }
+
+    FILE* bd = fopen("../pyscript/data.txt", "a");
+    if (!bd) {
+        perror("fopen");
+        _exit(-EXIT_FAILURE);
+    }
+
+    while (1) {
+
+        calc_mean(&sensor_data_mean, &sensor_data_sum, DURATION);  
+
+        write_sensor_data_to_pipe(named_pipe, &sensor_data_mean);
+
+        get_sensor_data(fport, &sensor_data_cur);
+        ma_sensor_data.push(sensor_data_cur);
+        add_to_sum(&sensor_data_sum, &sensor_data_cur);
+
+        sub_from_sum(&sensor_data_sum, &ma_sensor_data.front());
+        ma_sensor_data.pop();
+    }
+
     fclose(fport);
     if (wait(NULL) < 0) {
         _exit(-EXIT_FAILURE);
