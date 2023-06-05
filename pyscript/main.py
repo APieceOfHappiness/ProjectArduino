@@ -37,6 +37,8 @@ if __name__ == "__main__":
     x_axis_data = [[], [], [], []]
     y_axis_data = [[], [], [], []]
     fig, ax = plt.subplots(2, 2)
+    plt.subplots_adjust(hspace=0.5)
+    plt.subplots_adjust(wspace=0.5)
     pipe = open('/tmp/my_pipe', 'rb')
     while True:
         for i in range(4):
